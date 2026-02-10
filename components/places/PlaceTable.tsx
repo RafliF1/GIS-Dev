@@ -8,8 +8,6 @@ interface PlaceTableProps {
   data: Place[];
   onEdit: (place: Place) => void;
   onDelete: (id: string, name: string) => void;
-  
-  // Jadikan Opsional agar tidak memaksa DataPage mengirim props ini jika belum siap
   onSort?: (key: keyof Place) => void; 
   sortConfig?: { key: keyof Place; direction: "asc" | "desc" } | null;
 }
@@ -36,18 +34,17 @@ export default function PlaceTable({
   if (data.length === 0) {
     return (
       <div className="p-20 text-center text-slate-500 bg-white rounded-[24px] border border-slate-200 shadow-sm">
-        {/* ... (Kode Empty State sama seperti sebelumnya) ... */}
         <p>Data tidak ditemukan.</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full overflow-x-auto">
-      <table className="w-full text-left table-fixed min-w-250 border-collapse">
+    <div className="w-full">
+      <table className="w-full text-left table-fixed border-collapse">
         <thead>
           <tr className="bg-slate-50 border-b border-slate-200">
-            {/* Header Nama (Sortable jika onSort ada) */}
+            {/* Header Nama (25%) */}
             <th 
               className="p-5 text-[11px] font-extrabold uppercase tracking-wider text-slate-600 w-[25%] cursor-pointer hover:bg-slate-100 transition-colors group select-none"
               onClick={() => onSort && onSort("name")}
@@ -58,7 +55,7 @@ export default function PlaceTable({
               </div>
             </th>
 
-            {/* Header Kategori */}
+            {/* Header Kategori (15%) */}
             <th 
               className="p-5 text-[11px] font-extrabold uppercase tracking-wider text-slate-600 w-[15%] cursor-pointer hover:bg-slate-100 transition-colors group select-none"
               onClick={() => onSort && onSort("category")}
@@ -87,8 +84,6 @@ export default function PlaceTable({
                   <span className="font-bold text-slate-800 text-sm truncate w-full group-hover:text-lime-700 transition-colors">
                     {place.name}
                   </span>
-
-                  {/* PERBAIKAN: Cek Array placeImages, bukan place.image */}
                   {place.placeImages && place.placeImages.length > 0 && (
                     <span className="inline-flex items-center justify-center rounded-lg bg-lime-100 border border-lime-300 px-1.5 py-1 text-[10px] font-black text-lime-800 tracking-tight shadow-sm">
                       {place.placeImages.length} IMG
@@ -127,7 +122,10 @@ export default function PlaceTable({
                 </p>
               </td>
 
-              <td className="p-5 align-middle text-center">
+              <td 
+                id={index === 0 ? "tour-action-buttons" : undefined}
+                className="p-5 align-middle text-center"
+              >
                 <ActionButtons
                   name={place.name}
                   onEdit={() => onEdit(place)}

@@ -1,29 +1,42 @@
 "use client";
 
 import { Search } from "lucide-react";
+import { useEffect, useState } from "react";
 
+// Update Interface agar menerima defaultValue
 interface SearchBarProps {
-  onSearch: (query: string) => void; 
-  placeholder?: string; 
+  onSearch: (query: string) => void;
+  placeholder?: string;
+  defaultValue?: string; // <--- Tambahkan ini
 }
 
-export default function SearchBar({
-  onSearch,
-  placeholder = "Cari data...",
+export default function SearchBar({ 
+  onSearch, 
+  placeholder, 
+  defaultValue = "" // Set default string kosong
 }: SearchBarProps) {
-  return (
-    <div className="relative w-full max-w-md">
-      {/* Ikon Kaca Pembesar */}
-      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <Search className="h-5 w-5 text-slate-400" />
-      </div>
+  const [value, setValue] = useState(defaultValue);
 
-      {/* Input Field */}
+  // Fitur penting: Update isi kotak search jika URL berubah
+  useEffect(() => {
+    setValue(defaultValue);
+  }, [defaultValue]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVal = e.target.value;
+    setValue(newVal);
+    onSearch(newVal);
+  };
+
+  return (
+    <div className="relative">
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
       <input
         type="text"
-        className="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg leading-5 bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition duration-150 ease-in-out shadow-sm"
+        value={value}
+        onChange={handleChange}
         placeholder={placeholder}
-        onChange={(e) => onSearch(e.target.value)} 
+        className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-lime-500 focus:ring-2 focus:ring-lime-200 transition-all text-sm font-medium"
       />
     </div>
   );

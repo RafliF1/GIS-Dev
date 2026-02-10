@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Plus, Database, Settings2, CheckCircle } from "lucide-react";
+import { Plus, Database, Settings2, CheckCircle, HelpCircle } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -18,6 +18,8 @@ import PlaceTable from "@/components/places/PlaceTable";
 import PlaceForm from "@/components/places/PlaceForm";
 import { generatePagination } from "@/lib/utils";
 import { useAdminData } from "@/hooks/useAdminData";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 
 // Styles
 const STYLES = {
@@ -56,6 +58,73 @@ export default function DataPage() {
     handleDelete,
     showNotification,
   } = useAdminData();
+
+  // --- 2. DEFINISI FUNGSI START TOUR (Bisa dipanggil manual) ---
+  const startTour = () => {
+    const driverObj = driver({
+      showProgress: true,
+      animate: true,
+      nextBtnText: 'Lanjut ➡',
+      prevBtnText: '⬅ Kembali',
+      doneBtnText: 'Selesai ✨',
+      steps: [
+        {
+          element: '#tour-search',
+          popover: {
+            title: 'Pencarian Cepat',
+            description: 'Ketik nama lokasi atau kategori di sini untuk menyaring data secara instan.',
+            side: "bottom",
+            align: 'start'
+          }
+        },
+        {
+          element: '#tour-filter',
+          popover: {
+            title: 'Atur Tampilan',
+            description: 'Tentukan berapa banyak baris data yang ingin Anda lihat dalam satu halaman.',
+            side: "bottom",
+            align: 'center'
+          }
+        },
+        {
+          element: '#tour-add-btn',
+          popover: {
+            title: 'Tambah Lokasi',
+            description: 'Klik tombol ini untuk membuka formulir input data geospasial baru.',
+            side: "left",
+            align: 'center'
+          }
+        },
+        {
+          element: '#tour-action-buttons',
+          popover: {
+            title: 'Edit & Hapus Data',
+            description: 'Gunakan tombol di kolom aksi ini untuk mengedit atau menghapus data lokasi yang spesifik.',
+            side: "left",
+            align: 'center'
+          }
+        }
+      ]
+    });
+
+    driverObj.drive();
+  };
+
+  // --- 3. LOGIC AUTO START TOUR (Hanya sekali) ---
+  useEffect(() => {
+    if (filteredPlaces.length > 0) {
+      const continueFromDashboard = sessionStorage.getItem('continueTourFromDashboard');
+      const hasSeenDataTour = localStorage.getItem('hasSeenDataPageTour');
+
+      if (continueFromDashboard || !hasSeenDataTour) {
+        setTimeout(() => {
+          startTour();
+          localStorage.setItem('hasSeenDataPageTour', 'true');
+          sessionStorage.removeItem('continueTourFromDashboard');
+        }, 1000);
+      }
+    }
+  }, [filteredPlaces.length]);
 
   // Success notification handler
   useEffect(() => {
@@ -109,29 +178,44 @@ export default function DataPage() {
         {/* Header */}
         <header className="sticky top-0 z-30 bg-slate-50/90 backdrop-blur-xl border-b border-slate-200 py-5 px-6 md:px-12 transition-all">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            
+            {/* --- HEADER KIRI --- */}
             <div>
-              <h1 className={STYLES.pageTitle}>
-                <span className={STYLES.headerIcon}>
-                  <Database size={22} />
-                </span>
-                Data <span className="text-lime-600">Lokasi</span>
-              </h1>
+              <div className="flex items-center gap-4">
+                <h1 className={STYLES.pageTitle}>
+                  <span className={STYLES.headerIcon}>
+                    <Database size={22} />
+                  </span>
+                  Data <span className="text-lime-600">Lokasi</span>
+                </h1>
+                
+                {/* 4. TOMBOL REPLAY TOUR DISINI */}
+                <button 
+                  onClick={startTour}
+                  className="hidden md:flex items-center gap-2 text-[10px] font-bold text-lime-600 bg-lime-50 px-3 py-1.5 rounded-full hover:bg-lime-100 transition-colors border border-lime-200"
+                  title="Putar Ulang Panduan"
+                >
+                  <HelpCircle size={14} />
+                  Panduan
+                </button>
+              </div>
+
               <p className={STYLES.subTitle}>
                 Kelola total {filteredPlaces.length} data geospasial Kota
                 Blitar.
               </p>
             </div>
 
-            {/* Toolbar */}
+            {/* --- HEADER KANAN (Actions) --- */}
             <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
-              <div className="flex-1 min-w-50 lg:w-72">
+              <div id="tour-search" className="flex-1 min-w-50 lg:w-72">
                 <SearchBar
                   onSearch={handleSearch}
                   placeholder="Cari nama atau kategori..."
                 />
               </div>
               {/* Rows per page */}
-              <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm hover:border-lime-300 transition-colors">
+              <div id="tour-filter" className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm hover:border-lime-300 transition-colors">
                 <Settings2 size={14} className="text-slate-400" />
                 <select
                   className="text-xs font-bold text-slate-600 outline-none bg-transparent cursor-pointer hover:text-black transition-colors"
@@ -147,7 +231,7 @@ export default function DataPage() {
                   <option value={100}>100 Baris</option>
                 </select>
               </div>
-              <Link href="/admin/input" className={STYLES.actionButton}>
+              <Link id="tour-add-btn" href="/admin/input" className={STYLES.actionButton}>
                 <Plus size={20} strokeWidth={3} />{" "}
                 <span className="hidden sm:inline">Tambah</span>
               </Link>
@@ -156,7 +240,7 @@ export default function DataPage() {
         </header>
 
         {/* Table */}
-        <div className="w-full overflow-hidden border-t border-b border-slate-200 bg-white">
+        <div className="w-full">
           <PlaceTable
             data={currentPlaces}
             onEdit={(place) => setEditingPlace(place)}
