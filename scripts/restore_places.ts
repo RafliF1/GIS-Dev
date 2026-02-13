@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   try {
-    const backupPath = path.join(__dirname, "../backup_places_data.json");
+    const backupPath = path.join(process.cwd(), "backup_places_data.json");
     if (!fs.existsSync(backupPath)) {
       console.error("Backup file not found!");
       return;
@@ -15,34 +15,52 @@ async function main() {
     const rawData = fs.readFileSync(backupPath, "utf-8");
     const places = JSON.parse(rawData);
 
-    console.log(`Restoring ${places.length} places...`);
-
     for (const p of places) {
-      // Kita abaikan 'id' agar auto-increment baru, ATAU kita paksa 'id' jika perlu relasi.
-      // Untuk amannya, kita paksa ID agar link existing tidak putus (jika ada).
-      // Tetapi karena kita baru saja reset, ID harusnya aman.
+      try {
+        // Explicitly destructure only the fields we WANT from the backup
+        // or fields we want to EXCLUDE (like id, createdAt, updatedAt)
+        const {
+          id,
+          placeImages,
+          createdAt,
+          updatedAt,
+          is_recommended,
+          ...cleanData
+        } = p;
 
-      const { id, placeImages, ...rest } = p;
+        console.log(`Restoring: ${p.name}`);
 
-      // Hapus field yang mungkin tidak ada di schema baru atau beda tipe (misal updated_at otomatis)
-      // Prisma create akan handle default value.
-
-      await prisma.place.create({
-        data: {
-          ...rest,
-          // Opsional: id: id, // Uncomment jika ingin mempertahankan ID lama
-          placeImages: {
-            create: placeImages.map((img: any) => ({
-              url: img.url,
-            })),
+        await prisma.place.create({
+          data: {
+            name: cleanData.name,
+            description: cleanData.description,
+            address: cleanData.address,
+            lat: cleanData.lat,
+            lon: cleanData.lon,
+            category: cleanData.category,
+            createdAt: createdAt ? new Date(createdAt) : undefined,
+            placeImages: {
+              create: (placeImages || []).map((img: any) => ({
+                url: img.url,
+              })),
+            },
           },
-        },
-      });
+        });
+      } catch (itemError: any) {
+        console.error(
+          `Failed to restore ${p.name}:`,
+          itemError.message || itemError,
+        );
+      }
     }
 
-    console.log("Restoration completed!");
-  } catch (e) {
-    console.error("Restoration failed:", e);
+    console.log("Restoration loop finished!");
+  } catch (e: any) {
+    if (e.code) {
+      console.error(`Prisma Error [${e.code}]:`, e.message);
+    } else {
+      console.error("Restoration failed:", e);
+    }
   } finally {
     await prisma.$disconnect();
   }
