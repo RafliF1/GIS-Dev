@@ -241,7 +241,23 @@ export default function PlaceDetailModal({
                               ? "Tiket Masuk"
                               : "Harga"}
                       </span>
-                      {place.detail.priceInfo}
+                      {(() => {
+                        const priceInfo = place.detail.priceInfo;
+                        if (!priceInfo) return "-";
+
+                        const formatCurrency = (val: string) => {
+                          const num = parseInt(val.replace(/\D/g, "")); // Clean non-digits just in case
+                          if (isNaN(num)) return val;
+                          return `Rp. ${num.toLocaleString("id-ID")}`;
+                        };
+
+                        if (priceInfo.includes(" - ")) {
+                          const [min, max] = priceInfo.split(" - ");
+                          return `${formatCurrency(min)} - ${formatCurrency(max)}`;
+                        }
+
+                        return formatCurrency(priceInfo);
+                      })()}
                     </div>
                   </div>
                 )}

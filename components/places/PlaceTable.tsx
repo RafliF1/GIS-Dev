@@ -40,8 +40,8 @@ export default function PlaceTable({
   }
 
   return (
-    <div className="w-full">
-      <table className="w-full text-left table-fixed border-collapse">
+    <div className="w-full overflow-x-auto">
+      <table className="w-full text-left table-fixed min-w-250 border-collapse">
         <thead>
           <tr className="bg-slate-50 border-b border-slate-200">
             {/* Header Nama (25%) */}

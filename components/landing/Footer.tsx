@@ -28,7 +28,7 @@ export default function Footer({ onOpenMap, onScrollTo }: FooterProps) {
                 <Globe size={18} strokeWidth={3} />
               </div>
               <span className="font-black text-lg tracking-tight">
-                GIS <span className="text-lime-500">BLITAR</span>
+                GIS <span className="text-lime-500">App</span>
               </span>
             </div>
             <p className="text-sm leading-relaxed text-zinc-500">

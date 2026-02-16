@@ -416,10 +416,11 @@ export default function AdditionalInfoSection({
           </label>
           <div className="flex items-center gap-2">
             <input
-              type="text"
+              type="text" // Keep as text to control input manually
               value={detail.priceInfo?.split(" - ")[0] || ""}
               onChange={(e) => {
-                const start = e.target.value;
+                const val = e.target.value.replace(/\D/g, ""); // Remove non-digits
+                const start = val;
                 const end = detail.priceInfo?.split(" - ")[1] || "";
                 onChange(
                   "priceInfo",
@@ -437,11 +438,12 @@ export default function AdditionalInfoSection({
             />
             <span className="text-slate-400 font-bold">-</span>
             <input
-              type="text"
+              type="text" // Keep as text to control input manually
               value={detail.priceInfo?.split(" - ")[1] || ""}
               onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, ""); // Remove non-digits
                 const start = detail.priceInfo?.split(" - ")[0] || "";
-                const end = e.target.value;
+                const end = val;
                 onChange(
                   "priceInfo",
                   start && end
@@ -467,7 +469,21 @@ export default function AdditionalInfoSection({
           <input
             type="text"
             value={detail.contactInfo || ""}
-            onChange={(e) => onChange("contactInfo", e.target.value)}
+            onChange={(e) => {
+              // Format: 08xx-xxxx-xxxx
+              let val = e.target.value.replace(/\D/g, ""); // Remove non-digits
+              if (val.length > 13) val = val.slice(0, 13); // Max length for generic mobile numbers
+
+              let formatted = val;
+              if (val.length > 4) {
+                formatted = `${val.slice(0, 4)}-${val.slice(4)}`;
+              }
+              if (val.length > 8) {
+                formatted = `${formatted.slice(0, 9)}-${val.slice(8)}`;
+              }
+
+              onChange("contactInfo", formatted);
+            }}
             className="w-full p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none text-sm"
             placeholder="Contoh: 0812-3456-7890"
           />
