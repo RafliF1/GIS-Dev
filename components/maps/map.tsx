@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import {
   MapContainer,
   TileLayer,
@@ -9,6 +10,7 @@ import {
   Popup,
   LayersControl,
   LayerGroup,
+  useMap,
 } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import "leaflet/dist/leaflet.css";
@@ -22,6 +24,34 @@ import {
 import { LocateControl } from "@/components/maps/controls/LocateControl";
 import PlaceDetailModal from "@/components/maps/PlaceDetailModal";
 
+function MapController({ places, onPlaceFound }: { places: Place[], onPlaceFound: (place: Place) => void }) {
+  const map = useMap();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const lat = searchParams.get('lat');
+    const lng = searchParams.get('lng');
+    const highlightId = searchParams.get('highlight');
+
+    if (lat && lng && highlightId && places.length > 0) {
+      const targetLat = parseFloat(lat);
+      const targetLng = parseFloat(lng);
+
+      map.flyTo([targetLat, targetLng], 18, {
+        animate: true,
+        duration: 1.5
+      });
+      const targetPlace = places.find(p => p.id === highlightId);
+      if (targetPlace) {
+        onPlaceFound(targetPlace);
+      }
+    }
+  }, [searchParams, places, map, onPlaceFound]);
+
+  return null;
+}
+
+// --- KOMPONEN UTAMA ---
 export default function Map() {
   const [places, setPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,6 +105,11 @@ export default function Map() {
         zoom={13}
         style={{ height: "100%", width: "100%", zIndex: 0 }}
       >
+        <MapController 
+          places={places} 
+          onPlaceFound={(place) => setSelectedPlace(place)} 
+        />
+
         <LayersControl position="topright">
           <LayersControl.BaseLayer checked name="Peta Jalan">
             <TileLayer
@@ -124,6 +159,11 @@ export default function Map() {
                 key={place.id}
                 position={[Number(place.lat), Number(place.lon)]}
                 icon={createCustomMarker(place.category)}
+                eventHandlers={{
+                  click: () => {
+                     setSelectedPlace(place);
+                  },
+                }}
               >
                 <Popup>
                   <div className="w-60">
@@ -165,7 +205,11 @@ export default function Map() {
         <PlaceDetailModal
           key={selectedPlace.id || selectedPlace.name}
           place={selectedPlace}
-          onClose={() => setSelectedPlace(null)}
+          onClose={() => {
+            // Hapus query params saat modal ditutup supaya URL bersih (Opsional tapi bagus buat UX)
+            // window.history.replaceState(null, '', window.location.pathname);
+            setSelectedPlace(null);
+          }}
         />
       )}
     </div>

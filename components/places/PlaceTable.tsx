@@ -3,6 +3,7 @@
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Place } from "@/types";
 import ActionButtons from "./ActionButtons";
+import Link from 'next/link';
 
 interface PlaceTableProps {
   data: Place[];
@@ -81,9 +82,20 @@ export default function PlaceTable({
             >
               <td className="p-5 align-middle">
                 <div className="flex flex-col items-start gap-1.5">
-                  <span className="font-bold text-slate-800 text-sm truncate w-full group-hover:text-lime-700 transition-colors">
+                  <Link 
+                    href={{
+                      pathname: '/map',
+                      query: { 
+                        lat: place.lat,
+                        lng: place.lon,
+                        highlight: place.id
+                      }
+                    }}
+                    className="font-bold text-slate-800 text-sm truncate w-full hover:text-lime-600 hover:underline cursor-pointer transition-colors"
+                  >
                     {place.name}
-                  </span>
+                  </Link>
+                  
                   {place.placeImages && place.placeImages.length > 0 && (
                     <span className="inline-flex items-center justify-center rounded-lg bg-lime-100 border border-lime-300 px-1.5 py-1 text-[10px] font-black text-lime-800 tracking-tight shadow-sm">
                       {place.placeImages.length} IMG
