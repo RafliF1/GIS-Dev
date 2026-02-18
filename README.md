@@ -1,32 +1,39 @@
-# Aplikasi Web GIS (WebGIS)
+# GIS Kawasan Blitar (WebGIS)
 
-Aplikasi Web GIS yang lengkap dan interaktif, dibangun menggunakan Next.js. Aplikasi ini memungkinkan pengelolaan data spasial, visualisasi peta interaktif, dan dashboard admin yang komprehensif.
+Aplikasi Sistem Informasi Geografis (GIS) yang interaktif untuk memetakan kawasan strategis di Blitar (Hotel, Cafe, Wisata). Dibangun dengan teknologi modern untuk pengelolaan data spasial yang efisien dan visualisasi yang menarik.
 
 ## 🚀 Teknologi yang Digunakan
 
-- **Framework**: [Next.js 16](https://nextjs.org/) (App Directory)
+- **Framework**: [Next.js 15+](https://nextjs.org/) (App Router)
 - **Bahasa**: [TypeScript](https://www.typescriptlang.org/)
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
 - **Database & ORM**: [Prisma](https://www.prisma.io/) dengan PostgreSQL
 - **Peta**: [Leaflet](https://leafletjs.com/) & [React Leaflet](https://react-leaflet.js.org/)
 - **Autentikasi**: [NextAuth.js](https://next-auth.js.org/)
 - **Ikon**: [Lucide React](https://lucide.dev/)
-- **Komponen UI**: [Radix UI](https://www.radix-ui.com/)
-- **Visualisasi Data**: [Recharts](https://recharts.org/) & [Three.js](https://threejs.org/)
+- **Visualisasi Data**: [Recharts](https://recharts.org/)
 
 ## ✨ Fitur Utama
 
-- **Peta Interaktif**: Menampilkan dan berinteraksi dengan titik data spasial (Hotel, Cafe, Objek Wisata).
-- **Dashboard Admin**: Mengelola data tempat, melihat statistik, dan mengelola autentikasi pengguna.
-- **Formulir Dinamis**: Mengelola jam operasional, fasilitas, dan detail lainnya dengan input yang fleksibel.
-- **Clustering**: Menampilkan banyak marker secara efisien menggunakan teknik clustering pada peta.
-- **Desain Responsif**: Tampilan yang optimal baik di desktop maupun perangkat mobile.
+- **Peta Interaktif**: Visualisasi marker lokasi dengan fitur clustering dan filter kategori.
+- **Admin Dashboard**: Kelola data lokasi (CRUD), pantau statistik global, dan manajemen akses.
+- **Detail Lokasi**: Informasi lengkap mencakup koordinat, fasilitas, jam operasional, dan galeri gambar.
+- **Responsive Design**: UI premium yang optimal di berbagai ukuran layar (Desktop & Mobile).
+- **Auto-Backup**: Sistem backup data otomatis untuk keamanan informasi.
+
+## 📊 Dokumentasi Arsitektur
+
+Untuk memahami alur kerja aplikasi secara mendalam, silakan lihat file [DOKUMENTASI_DIAGRAM.md](DOKUMENTASI_DIAGRAM.md). File tersebut berisi:
+
+- **Entity Relationship Diagram (ERD)**: Struktur database.
+- **Flowchart**: Alur logika sistem untuk level Public & Admin.
+- **Data Flow Diagram (DFD)**: Aliran data dari Level 0 hingga Level 3.
 
 ## 🛠️ Panduan Instalasi (Getting Started)
 
 ### Prasyarat
 
-- [Node.js](https://nodejs.org/) (Disarankan versi LTS)
+- [Node.js](https://nodejs.org/) (v18 ke atas)
 - [PostgreSQL](https://www.postgresql.org/) database
 
 ### Langkah Instalasi
@@ -35,7 +42,7 @@ Aplikasi Web GIS yang lengkap dan interaktif, dibangun menggunakan Next.js. Apli
 
     ```bash
     git clone https://github.com/RafliF1/GIS-Dev.git
-    cd <direktori-project>
+    cd GIS-Dev
     ```
 
 2.  **Install Dependencies**
@@ -45,21 +52,9 @@ Aplikasi Web GIS yang lengkap dan interaktif, dibangun menggunakan Next.js. Apli
     ```
 
 3.  **Konfigurasi Environment**
-
-    Buat file `.env` di direktori utama (root) dan sesuaikan variabel environment berikut:
-
-    ```env
-    # Koneksi Database
-    DATABASE_URL="postgresql://user:password@localhost:5432/nama_database_anda"
-
-    # Konfigurasi NextAuth
-    NEXTAUTH_SECRET="kunci-rahasia-anda"
-    NEXTAUTH_URL="http://localhost:3000"
-    ```
+    Buat file `.env` dan sesuaikan variabel koneksi database serta NextAuth.
 
 4.  **Setup Database**
-
-    Generate Prisma client dan push schema ke database Anda:
 
     ```bash
     npx prisma generate
@@ -67,20 +62,15 @@ Aplikasi Web GIS yang lengkap dan interaktif, dibangun menggunakan Next.js. Apli
     ```
 
 5.  **Jalankan Aplikasi**
-
-    Mulai server development:
-
     ```bash
     npm run dev
     ```
 
-    Buka [http://localhost:3000](http://localhost:3000) di browser Anda untuk melihat hasilnya.
-
 ## 📂 Struktur Project
 
-- `app/`: Halaman dan layout menggunakan App Router.
-- `components/`: Komponen UI yang dapat digunakan kembali (Peta, Form, Layout).
-- `lib/`: Fungsi utilitas dan konfigurasi (Auth, Database).
-- `prisma/`: Schema database dan migrasi.
-- `types/`: Definisi tipe TypeScript.
-- `public/`: Aset statis (Gambar, Ikon).
+- `app/`: Routing dan halaman utama (App Router).
+- `components/`: Komponen UI (Map, Forms, Landing Page elements).
+- `lib/`: Konfigurasi Core (Prisma client, Auth options).
+- `prisma/`: Schema database dan definisi model.
+- `public/`: Aset statis seperti gambar dan ikon.
+- `scripts/`: Script utilitas (seperti automasi backup).
